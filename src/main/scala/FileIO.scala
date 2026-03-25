@@ -1,17 +1,26 @@
 import scala.io.Source
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
 object FileIO {
-  // Pure function to read subscriptions from a JSON file
-  def readSubscriptions(): List[String] = {
-    List(
-      "https://www.reddit.com/r/scala/.json?count=10",
-      "https://www.reddit.com/r/learnprogramming/.json?count=10"
-    )
-  }
+  type Subscription = (String, String)
 
-  // Pure function to download JSON feed from a URL
-  def downloadFeed(url: String): String = {
-    val source = Source.fromURL(url)
-    source.mkString
+  def readSubscriptions(): List[Subscription] = {
+    
+    implicit val formats: DefaultFormats.type = DefaultFormats
+    
+    val source = Source.fromFile("subscriptions.json")
+    try {
+      val jsonTexto = source.mkString
+      
+      val jsonJValue = parse(jsonTexto)
+      
+      val listaMapas = jsonJValue.extract[List[Map[String, String]]]
+      
+      listaMapas.map(m => (m("name"), m("url")))
+
+    } finally {
+      source.close()
+    }
   }
 }
