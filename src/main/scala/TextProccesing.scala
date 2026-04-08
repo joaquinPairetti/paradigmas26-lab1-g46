@@ -1,7 +1,19 @@
 object TextProcessing {
-  val Post = (String, String, String, String) 
-  /*ejercicio 2*/
-  def formatDateFromUTC(utc: Long): String = {/*implementar*/}
+  type Post = (String, String, String, String)
+
+  /*ejercicio 2
+  * Recibe un numero en formato UTC y devuelve una fecha formateada como "dd-MM-yyyy HH:mm"
+  */
+  def formatDateFromUTC(utc: Long): String = {
+    // Convierte el numero UTC a una fecha legible
+    val fecha = java.time.Instant.ofEpochSecond(utc)
+
+    // Convierte la fecha a la zona horaria local
+    val fechaLocal = java.time.LocalDateTime.ofInstant(fecha, java.time.ZoneId.systemDefault())
+
+    // Formatea la fecha en el formato "dd-MM-yyyy HH:mm"
+    fechaLocal.format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
+  }
 
   /**
    * EJERCICIO 3: Filtrado de posts
