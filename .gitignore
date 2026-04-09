@@ -33,6 +33,7 @@ bin/
 .idea
 
 # mac
+._*
 .DS_Store
 
 # other?
