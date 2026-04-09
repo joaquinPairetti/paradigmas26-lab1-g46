@@ -5,6 +5,8 @@ import org.json4s.jackson.JsonMethods._
 object FileIO {
   // Definición de un alias para representar una suscripción como un par de Strings (Nombre, URL)
   type Subscription = (String, String)
+    // (subreddit, title, selftext,)
+  type Post = (String, String, String, String)
 
   /**
    * Lee el archivo 'subscriptions.json' y lo transforma en una lista de tuplas.
@@ -28,12 +30,11 @@ object FileIO {
     } finally {
       source.close()
     }
-    // (subreddit, title, selftext,)
-    val Post = (String, String, String, String)
 
-    def downloadJson(subredditUrl: String): List[Post] = {
+  }
+  def downloadJson(subredditUrl: String): List[Post] = {
       //stream
-      val source = source.fromURL(subredditUrl)
+      val source = Source.fromURL(subredditUrl)
       
       try {
         // stream -> string
@@ -45,7 +46,7 @@ object FileIO {
         * obtengo una lista nativa de scala de Jvalues accesibles a map
         * JArray (un [] en JSON) -> List[JValue]
         **/
-        jsonPost = (jsonData / "data" / "children").children
+        val jsonPost = (jsonData \ "data" \ "children").children
 
         jsonPost.map { post =>
         // Entro al post
@@ -69,4 +70,3 @@ object FileIO {
     }
 
   }
-}
