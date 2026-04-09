@@ -12,61 +12,48 @@ object FileIO {
    * Lee el archivo 'subscriptions.json' y lo transforma en una lista de tuplas.
    * @return Una lista de pares (nombre, url).
    */
-  def readSubscriptions(): List[Subscription] = {
-    
-    implicit val formats: DefaultFormats.type = DefaultFormats
-    
-    val source = Source.fromFile("subscriptions.json")
-    
+  def readSubscriptions(path:String): Option[List[Subscription]]= {
     try {
-      val jsonTexto = source.mkString
-      
-      val jsonJValue = parse(jsonTexto)
-      
-      val listaMapas = jsonJValue.extract[List[Map[String, String]]]
-
-      listaMapas.map(m => (m("name"), m("url")))
-
-    } finally {
+      implicit val formats: DefaultFormats.type = DefaultFormats
+      val source = Source.fromFile(path)
+      val content = source.mkString
       source.close()
+      val json = parse(content)
+      val items = json.extract[List[Map[String, String]]]
+      val subscriptions = items.map {item => (item("name"), item("url"))}
+      Some(subscriptions)
+    } catch {
+      case e: Exception => None
     }
-
   }
-  def downloadJson(subredditUrl: String): List[Post] = {
-      //stream
-      val source = Source.fromURL(subredditUrl)
-      
-      try {
-        // stream -> string
-        val data = source.mkString
-        // string->json
-        val jsonData = parse(data) 
-        /**
-        * En base a una un objeto que contiene todos los post (children):
-        * obtengo una lista nativa de scala de Jvalues accesibles a map
-        * JArray (un [] en JSON) -> List[JValue]
-        **/
-        val jsonPost = (jsonData \ "data" \ "children").children
 
-        jsonPost.map { post =>
-        // Entro al post
+  def downloadFeed(subredditUrl: String): Option[List[Post]] = {
+  // Usamos Try para capturar cualquier error de red o de parseo
+  scala.util.Try {
+    val source = Source.fromURL(subredditUrl)
+    implicit val formats: DefaultFormats.type = DefaultFormats
+
+    try {
+      val data = source.mkString
+      val jsonData = parse(data) 
+      
+      val jsonPost = (jsonData \ "data" \ "children").children
+
+      jsonPost.map { post =>
         val data = post \ "data"
         
-        // Extraccion de campos 
         val subreddit = (data \ "subreddit").extract[String]
         val title     = (data \ "title").extract[String]
         val selftext  = (data \ "selftext").extract[String]
         
-        // Transformación de la fecha (Canonicalización)
         val createdUtc = (data \ "created_utc").extract[Double].toLong
         val date       = TextProcessing.formatDateFromUTC(createdUtc)
 
         (subreddit, title, selftext, date)
-        }
-      } finally {
-        source.close()
       }
-      
+    } finally {
+      source.close()
     }
-
+  }.toOption // Si todo salió bien, devuelve Some(lista). Si hubo error, devuelve None.
   }
+}
