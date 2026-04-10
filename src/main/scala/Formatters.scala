@@ -1,7 +1,7 @@
 
 object Formatters {
 
-  type Post = (String, String, String, String)
+  type Post = (String, String, String, String, Int)
 
 
   // Pure function to format posts from a subscription

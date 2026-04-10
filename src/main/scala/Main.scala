@@ -1,6 +1,6 @@
 object Main {
   type Subscription = (String, String)
-  type Post         = (String, String, String, String)
+  type Post         = (String, String, String, String, Int)
 
   def main(args: Array[String]): Unit = {
     println(s"Reddit Post Parser\n${"=" * 40}")
