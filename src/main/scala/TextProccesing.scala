@@ -1,18 +1,18 @@
 object TextProcessing {
-  type Post = (String, String, String, String)
+  type Post = (String, String, String, String, Int)
 
   /*ejercicio 2
   * Recibe un numero en formato UTC y devuelve una fecha formateada como "dd-MM-yyyy HH:mm"
   */
   def formatDateFromUTC(utc: Long): String = {
-    // Convierte el numero UTC a una fecha legible
+    // Obtengo la fecha a partir del numero utc
     val fecha = java.time.Instant.ofEpochSecond(utc)
 
-    // Convierte la fecha a la zona horaria local
-    val fechaLocal = java.time.LocalDateTime.ofInstant(fecha, java.time.ZoneId.systemDefault())
+    // Obtengo la fecha en UTC
+    val fechaUtc = java.time.LocalDateTime.ofInstant(fecha, java.time.ZoneOffset.UTC)
 
     // Formatea la fecha en el formato "dd-MM-yyyy HH:mm"
-    fechaLocal.format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
+    fechaUtc.format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
   }
 
   /**
@@ -55,7 +55,7 @@ object TextProcessing {
                         "yourself", "yourselves")
     
     // Extraigo todas las palabras de los posts.
-    val words = posts.flatMap { case (_, title, selftext, _) => 
+    val words = posts.flatMap { case (_, title, selftext, _, _) => 
       (title + " " + selftext).split("\\W+").toList
     }
 
@@ -63,5 +63,17 @@ object TextProcessing {
     words.filter { word => word.nonEmpty && word(0).isUpper && !stopwords.contains(word.toLowerCase) }
          .groupBy(word => word)
          .map{ case (word, list) => (word, list.length) }
+  }
+
+  // Calcula la frecuencia de palabras por subreddit
+  def wordFrequencyBySubreddit(posts: List[Post]): Map[String, Map[String, Int]] = {
+    posts
+      .groupBy(_._1)
+      .map { case (subreddit, subposts) => (subreddit, wordFrequency(subposts))}
+  }
+
+  def sumScore(posts: List[Post]): Int = {
+    val totalScore = posts.foldLeft(0)((acc, post) => acc + post._5)
+    totalScore 
   }
 }
