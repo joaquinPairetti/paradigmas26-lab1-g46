@@ -16,8 +16,12 @@ object Formatters {
 
   }
 
-  def formatReport(name: String, totalScore: Int, top5: List[Post]): String = {
+  def formatReport(name: String, totalScore: Int, top5: List[Post], wordFreq: List[(String, Int)]): String = {
   val postsText = top5.map { case (_, title, _, date, _, url) => s"   * [$date] $title\n $url" }.mkString("\n")
+
+  val wordsText = wordFreq
+      .map { case (word, count) => s"  - $word: $count" }
+      .mkString("\n")
   
   s"""
      |Subreddit: $name
@@ -25,6 +29,9 @@ object Formatters {
      |
      |Top 5 Posts:
      |$postsText
+     |
+     |Top 5 words:
+     |$wordsText
   """.stripMargin
 }
 }
