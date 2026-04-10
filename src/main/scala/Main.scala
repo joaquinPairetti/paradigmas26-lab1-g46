@@ -1,6 +1,6 @@
 object Main {
   type Subscription = (String, String)
-  type Post         = (String, String, String, String, Int)
+  type Post         = (String, String, String, String, Int, String)
 
   def main(args: Array[String]): Unit = {
     println(s"Reddit Post Parser\n${"=" * 40}")
@@ -14,8 +14,11 @@ object Main {
       
       maybePosts match {
         case Some(listaDePosts) => 
-          Formatters.formatSubscription(name, listaDePosts)
-        
+          val top5 = listaDePosts.take(5)
+          val wordFreq = TextProcessing.wordFrequency(listaDePosts)
+          val totalScore = TextProcessing.sumScore(listaDePosts)
+
+          Formatters.formatReport(name, totalScore, top5) 
         case None => 
           s" ERROR: No se pudo descargar '$name' "
       }

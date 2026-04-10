@@ -1,5 +1,5 @@
 object TextProcessing {
-  type Post = (String, String, String, String, Int)
+  type Post = (String, String, String, String, Int, String)
 
   /*ejercicio 2
   * Recibe un numero en formato UTC y devuelve una fecha formateada como "dd-MM-yyyy HH:mm"
@@ -55,7 +55,7 @@ object TextProcessing {
                         "yourself", "yourselves")
     
     // Extraigo todas las palabras de los posts.
-    val words = posts.flatMap { case (_, title, selftext, _, _) => 
+    val words = posts.flatMap { case (_, title, selftext, _, _, _) => 
       (title + " " + selftext).split("\\W+").toList
     }
 

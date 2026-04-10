@@ -6,7 +6,7 @@ object FileIO {
   // Definición de un alias para representar una suscripción como un par de Strings (Nombre, URL)
   type Subscription = (String, String)
     // (subreddit, title, selftext,)
-  type Post = (String, String, String, String, Int)
+  type Post = (String, String, String, String, Int, String)
 
   /**
    * Lee el archivo 'subscriptions.json' y lo transforma en una lista de tuplas.
@@ -45,13 +45,14 @@ object FileIO {
         val subreddit: String = (data \ "subreddit").extractOpt[String].getOrElse("Unknown Subreddit")
         val title: String     = (data \ "title").extractOpt[String].getOrElse("No Title")
         val selftext: String  = (data \ "selftext").extractOpt[String].getOrElse("")
+        val postUrl: String = (data \ "url").extractOpt[String].getOrElse("")
 
         val createdUtc: Long = (data \ "created_utc").extractOpt[Double].getOrElse(0.0).toLong
         val date: String     = TextProcessing.formatDateFromUTC(createdUtc)
 
         val score: Int = (data \ "ups").extractOpt[Int].getOrElse(0)
 
-        (subreddit, title, selftext, date, score)
+        (subreddit, title, selftext, date, score, postUrl)
       }
     } finally {
       source.close()
